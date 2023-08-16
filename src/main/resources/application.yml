@@ -1,0 +1,19 @@
+spring:
+  data:
+    mongodb:
+      database: acs
+
+server:
+  port: 9000
+  http2:
+    enabled: true
+
+jwt:
+  issuer: "Test"
+  tokens:
+    access:
+      ttl-in-seconds: 18000 # Для теста
+      key: cc107fac334aad2c250fcdb85bf840f55f446ec34c1f27e669f898395b05796a
+    refresh:
+      ttl-in-seconds: 18000
+      key: 338f4be5fd668b59d344cc859e6c1a2f063541d9ddadd8f151dc5cb88e76be1e
