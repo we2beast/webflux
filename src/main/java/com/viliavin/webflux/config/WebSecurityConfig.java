@@ -1,7 +1,9 @@
 package com.viliavin.webflux.config;
 
+import com.viliavin.webflux.converter.JwtAuthConverter;
 import com.viliavin.webflux.converter.LoginRequestConverter;
 import com.viliavin.webflux.handler.JwtAuthenticationSuccessHandler;
+import com.viliavin.webflux.manager.BearerAuthorizationManager;
 import com.viliavin.webflux.service.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -16,11 +18,12 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.authentication.AuthenticationWebFilter;
 import org.springframework.security.web.server.authentication.ServerAuthenticationConverter;
+import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
 
 @Configuration
 @EnableWebFluxSecurity
-@EnableReactiveMethodSecurity
 @RequiredArgsConstructor
+@EnableReactiveMethodSecurity
 public class WebSecurityConfig {
 
     private final ReactiveUserDetailsService userDetailsService;
@@ -29,9 +32,6 @@ public class WebSecurityConfig {
 
     @Bean
     public SecurityWebFilterChain jwtApiFilterChain(ServerHttpSecurity http) {
-        http.csrf(ServerHttpSecurity.CsrfSpec::disable);
-        http.httpBasic(ServerHttpSecurity.HttpBasicSpec::disable);
-
         var manager = new UserDetailsRepositoryReactiveAuthenticationManager(userDetailsService);
         manager.setPasswordEncoder(bCryptPasswordEncoder);
 
@@ -39,12 +39,19 @@ public class WebSecurityConfig {
         AuthenticationWebFilter authenticationFilter = new AuthenticationWebFilter(manager);
         authenticationFilter.setServerAuthenticationConverter(loginRequestConverter);
         authenticationFilter.setAuthenticationSuccessHandler(new JwtAuthenticationSuccessHandler(jwtService));
+        authenticationFilter.setRequiresAuthenticationMatcher(ServerWebExchangeMatchers.pathMatchers("/login"));
 
-        http
+        AuthenticationWebFilter bearerAuthWebFilter = new AuthenticationWebFilter(new BearerAuthorizationManager());
+        bearerAuthWebFilter.setServerAuthenticationConverter(new JwtAuthConverter(jwtService));
+
+        http.csrf(ServerHttpSecurity.CsrfSpec::disable)
+            .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
+            .formLogin(ServerHttpSecurity.FormLoginSpec::disable)
             .authorizeExchange((authorize) ->
                 authorize.pathMatchers("/resource", "/resource/**").permitAll()
                     .anyExchange().authenticated())
-            .addFilterAt(authenticationFilter, SecurityWebFiltersOrder.AUTHENTICATION);
+            .addFilterAt(authenticationFilter, SecurityWebFiltersOrder.AUTHENTICATION)
+            .addFilterAt(bearerAuthWebFilter, SecurityWebFiltersOrder.AUTHORIZATION);
 
         return http.build();
     }

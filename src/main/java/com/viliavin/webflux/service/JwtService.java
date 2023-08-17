@@ -37,7 +37,7 @@ public class JwtService {
         Token access = this.jwtProperties.tokens().access();
 
         return Jwts.builder()
-            .setClaims(Map.of("ROLE", user.getAuthorities().stream().map(Object::toString)
+            .setClaims(Map.of("role", user.getAuthorities().stream().map(Object::toString)
                 .collect(Collectors.joining(", "))))
             .setSubject(user.getUsername())
             .setIssuer(this.jwtProperties.issuer())
