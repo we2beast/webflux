@@ -1,5 +1,6 @@
 package com.viliavin.webflux.controller;
 
+import com.viliavin.webflux.domain.model.ResourceObject;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
@@ -50,6 +51,24 @@ public class ResourceControllerTest {
             .expectStatus()
             .isOk()
             .expectBody().isEmpty();
+    }
+
+    @Test
+    void searchResourcesByValue() throws Exception {
+        rest.get().uri("/resource/search?q=val")
+            .exchange()
+            .expectStatus()
+            .isOk()
+            .expectBodyList(ResourceObject.class);
+    }
+
+    @Test
+    void searchResources() throws Exception {
+        rest.get().uri("/resource/searchByPath?path=path1")
+            .exchange()
+            .expectStatus()
+            .isOk()
+            .expectBodyList(ResourceObject.class);
     }
 
 }

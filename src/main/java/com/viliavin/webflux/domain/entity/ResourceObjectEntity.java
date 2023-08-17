@@ -1,9 +1,7 @@
 package com.viliavin.webflux.domain.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.MongoId;
 
@@ -12,9 +10,11 @@ import org.springframework.data.mongodb.core.mapping.MongoId;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Data
 public class ResourceObjectEntity {
 
     @MongoId
+    @Id
     private Integer id;
     private String value;
     private String path;
