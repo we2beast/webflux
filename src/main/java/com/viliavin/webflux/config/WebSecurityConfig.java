@@ -48,7 +48,11 @@ public class WebSecurityConfig {
             .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
             .formLogin(ServerHttpSecurity.FormLoginSpec::disable)
             .authorizeExchange((authorize) ->
-                authorize.pathMatchers("/resource", "/resource/**").permitAll()
+                authorize
+                    .pathMatchers("/webjars/swagger-ui/**", "/swagger-ui/**", "/swagger-ui.html",
+                        "/v3/api-docs", "/v3/api-docs/**",
+                        "/v3/api-docs.yaml", "/v3/api-docs.yaml/**").permitAll()
+                    .pathMatchers("/resource", "/resource/**").permitAll()
                     .anyExchange().authenticated())
             .addFilterAt(authenticationFilter, SecurityWebFiltersOrder.AUTHENTICATION)
             .addFilterAt(bearerAuthWebFilter, SecurityWebFiltersOrder.AUTHORIZATION);

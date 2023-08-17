@@ -17,3 +17,7 @@ jwt:
     refresh:
       ttl-in-seconds: 18000
       key: 338f4be5fd668b59d344cc859e6c1a2f063541d9ddadd8f151dc5cb88e76be1e
+
+springdoc:
+  swagger-ui:
+    use-root-path: true
