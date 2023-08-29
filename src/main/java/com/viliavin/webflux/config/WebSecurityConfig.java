@@ -2,9 +2,11 @@ package com.viliavin.webflux.config;
 
 import com.viliavin.webflux.converter.JwtAuthConverter;
 import com.viliavin.webflux.converter.LoginRequestConverter;
+import com.viliavin.webflux.handler.JwtAuthenticationFailureHandler;
 import com.viliavin.webflux.handler.JwtAuthenticationSuccessHandler;
 import com.viliavin.webflux.manager.BearerAuthorizationManager;
 import com.viliavin.webflux.service.JwtService;
+import io.micrometer.core.instrument.MeterRegistry;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,6 +18,7 @@ import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.server.SecurityWebFilterChain;
+import org.springframework.security.web.server.ServerAuthenticationEntryPoint;
 import org.springframework.security.web.server.authentication.AuthenticationWebFilter;
 import org.springframework.security.web.server.authentication.ServerAuthenticationConverter;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
@@ -29,6 +32,7 @@ public class WebSecurityConfig {
     private final ReactiveUserDetailsService userDetailsService;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final JwtService jwtService;
+    private final MeterRegistry meterRegistry;
 
     @Bean
     public SecurityWebFilterChain jwtApiFilterChain(ServerHttpSecurity http) {
@@ -38,7 +42,8 @@ public class WebSecurityConfig {
         ServerAuthenticationConverter loginRequestConverter = new LoginRequestConverter();
         AuthenticationWebFilter authenticationFilter = new AuthenticationWebFilter(manager);
         authenticationFilter.setServerAuthenticationConverter(loginRequestConverter);
-        authenticationFilter.setAuthenticationSuccessHandler(new JwtAuthenticationSuccessHandler(jwtService));
+        authenticationFilter.setAuthenticationSuccessHandler(new JwtAuthenticationSuccessHandler(jwtService, meterRegistry));
+        authenticationFilter.setAuthenticationFailureHandler(new JwtAuthenticationFailureHandler());
         authenticationFilter.setRequiresAuthenticationMatcher(ServerWebExchangeMatchers.pathMatchers("/login"));
 
         AuthenticationWebFilter bearerAuthWebFilter = new AuthenticationWebFilter(new BearerAuthorizationManager());

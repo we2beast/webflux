@@ -3,6 +3,9 @@ package com.viliavin.webflux.handler;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.viliavin.webflux.service.JwtService;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Metrics;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.buffer.DataBuffer;
@@ -22,13 +25,16 @@ public class JwtAuthenticationSuccessHandler implements ServerAuthenticationSucc
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     private final JwtService jwtService;
+    private final Counter successAuthCounter = Metrics.counter("auth.success");
 
-    public JwtAuthenticationSuccessHandler(JwtService jwtService) {
+    public JwtAuthenticationSuccessHandler(JwtService jwtService, MeterRegistry meterRegistry) {
         this.jwtService = jwtService;
+//        this.successAuthCounter = Metrics.counter("auth.success");
     }
 
     @Override
     public Mono<Void> onAuthenticationSuccess(WebFilterExchange webFilterExchange, Authentication authentication) {
+        successAuthCounter.increment();
         logger.debug("auth: " + authentication);
 
         ServerHttpResponse response = webFilterExchange.getExchange().getResponse();
