@@ -53,6 +53,7 @@ public class WebSecurityConfig {
                         "/v3/api-docs", "/v3/api-docs/**",
                         "/v3/api-docs.yaml", "/v3/api-docs.yaml/**").permitAll()
                     .pathMatchers("/resource", "/resource/**").permitAll()
+                    .pathMatchers("/actuator/**", "/exception/**").permitAll()
                     .anyExchange().authenticated())
             .addFilterAt(authenticationFilter, SecurityWebFiltersOrder.AUTHENTICATION)
             .addFilterAt(bearerAuthWebFilter, SecurityWebFiltersOrder.AUTHORIZATION);

@@ -8,6 +8,22 @@ server:
   http2:
     enabled: true
 
+management:
+  auditevents:
+    enabled: true
+  health:
+    mongo:
+      enabled: false
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  endpoint:
+    health:
+      show-details: always
+      probes:
+        enabled: true
+
 jwt:
   issuer: "Test"
   tokens:
